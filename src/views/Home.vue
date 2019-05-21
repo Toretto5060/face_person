@@ -2,7 +2,7 @@
   <div class="home">
     <div class="contenr">
       <div class="videocon">
-        <video  ref="video" width="200" height="150px" autoplay></video>
+        <video  ref="video" width="640" height="480" autoplay></video>
       </div>
       <div class="btncon">
         <input type="button"  style="width: 100px;height: 35px" value="开启认证" @click="getVideo">
@@ -27,28 +27,32 @@ export default {
   data() {
     return {
       mediaRecorder: "",
+      mediaStreamTrack:'',
       videolength: 0,
       timer: null
     };
   },
-  mounted() {},
+  mounted() {
+    window.addEventListener('beforeunload', e => this.beforeunloadFn(e))
+  },
   methods: {
     // 开启摄像头
     getVideo() {
         var video = this.$refs.video;
         var videoObj = {
           video: true,
-          audio: true
+          // audio: true
         }
         let self = this;
         navigator.mediaDevices
           .getUserMedia(videoObj)
           .then(function (mediaStream) {
+            self.mediaStreamTrack = mediaStream
             video.srcObject = mediaStream
             video.play()
             self.mediaRecorder = new MediaRecorder(mediaStream, {
               audioBitsPerSecond : 128000,  // 音频码率
-              videoBitsPerSecond : 100000,  // 视频码率
+              videoBitsPerSecond : 500000,  // 视频码率
               mimeType : 'video/webm;codecs=h264' // 编码格式
             })
           })
@@ -63,6 +67,11 @@ export default {
       context.drawImage(this.$refs.video, 0, 0, 200, 150);
       let imgSrc = canvasCon.toDataURL("image/png");
       console.log(imgSrc)
+    },
+    closeCamera() {
+      this.mediaStreamTrack.getTracks().forEach(function (track) {
+        track.stop();
+      });
     },
     //开始采集
     off () {
@@ -80,17 +89,9 @@ export default {
       this.timer = null
       var a = this.$refs.save
       this.mediaRecorder.ondataavailable = function (e) {
-        // console.log(e.data)
-        // // 下载视频
-        // var encodedUri = URL.createObjectURL(e.data)
-
-
-        var aFileParts = ['<a id="a"><b id="b">hey!</b></a>']; // 一个包含DOMString的数组
-        var text = new Blob(aFileParts, {type : 'text/html'}); // 得到 blob
-        var encodedUri = URL.createObjectURL(text)
+        var encodedUri = URL.createObjectURL(e.data)
         a.href = encodedUri
-        // a.download = `test.mp4`
-        a.download = `test.txt`
+        a.download = `test.webm`
         console.log(encodedUri)
       }
     }
