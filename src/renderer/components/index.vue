@@ -1,20 +1,16 @@
 <template>
-  <div class="home">
-    <div class="frostedGlass">
-      <canvas ref="bg"></canvas>
-    </div>
-
+  <div class="index">
     <div class="contenr">
       <div class="videocon">
         <video  ref="video" id="video" width="640" height="480" autoplay></video>
       </div>
-      <div class="btncon">
-        <input type="button"  style="width: 100px;height: 35px;" value="截取" @click="takePhoto">
-        <input type="button" ref="bg"  style="width: 100px;height: 35px;" value="开始采集" @click="off">
-        <input type="button" ref="close" style="width: 100px;height: 35px;" value="停止采集" @click="on">
-        <a  ref="save" style="display:block;width: 100px;height: 35px;text-align: center;line-height: 35px">保存到本地</a>
-        <span>{{videolength + "s"}}</span>
-      </div>
+      <!--<div class="btncon">-->
+        <!--<input type="button"  style="width: 100px;height: 35px;" value="截取" @click="takePhoto">-->
+        <!--<input type="button" ref="bg"  style="width: 100px;height: 35px;" value="开始采集" @click="off">-->
+        <!--<input type="button" ref="close" style="width: 100px;height: 35px;" value="停止采集" @click="on">-->
+        <!--<a  ref="save" style="display:block;width: 100px;height: 35px;text-align: center;line-height: 35px">保存到本地</a>-->
+        <!--<span>{{videolength + "s"}}</span>-->
+      <!--</div>-->
       <div class="draw">
         <canvas id="canvas"  width="640" height="480"></canvas>
       </div>
@@ -40,7 +36,7 @@
       };
     },
     mounted() {
-      this.getVideo();
+      // this.getVideo();
     },
     methods: {
       drawBg() {
@@ -68,8 +64,10 @@
               videoBitsPerSecond : 500000,  // 视频码率
               mimeType : 'video/webm;codecs=h264' // 编码格式
             })
-            self.faceInit()
-            self.drawBg()
+            setTimeout(function () {
+              self.faceInit()
+            },1000)
+            // self.drawBg()
           })
           .catch(function (error) {
             console.log(error)
@@ -149,6 +147,14 @@
 </script>
 
 <style lang="less">
+  .index {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+  }
   .frostedGlass{
     position: absolute;
     top: 0;
