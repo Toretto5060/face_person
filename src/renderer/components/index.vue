@@ -1,20 +1,15 @@
 <template>
   <div class="index">
+    <div class="load" v-if="loadShow">
+      <v-load></v-load>
+    </div>
     <div class="contenr">
       <div class="videocon">
         <video  ref="video" id="video" width="640" height="480" autoplay></video>
       </div>
-      <!--<div class="btncon">-->
-        <!--<input type="button"  style="width: 100px;height: 35px;" value="截取" @click="takePhoto">-->
-        <!--<input type="button" ref="bg"  style="width: 100px;height: 35px;" value="开始采集" @click="off">-->
-        <!--<input type="button" ref="close" style="width: 100px;height: 35px;" value="停止采集" @click="on">-->
-        <!--<a  ref="save" style="display:block;width: 100px;height: 35px;text-align: center;line-height: 35px">保存到本地</a>-->
-        <!--<span>{{videolength + "s"}}</span>-->
-      <!--</div>-->
-      <div class="draw">
-        <canvas id="canvas"  width="640" height="480"></canvas>
+      <div class="draw" :style="{width: drawWidth+'px', height:drawHeight+'px',left:drawLeft+'px',top:drawTop+'px'}" v-if="drawShow">
+        <!--<canvas id="canvas"  width="640" height="480"></canvas>-->
       </div>
-
       <div class="cancon">
         <canvas ref="canvas" width="200" height="150"></canvas>
       </div>
@@ -24,11 +19,20 @@
 </template>
 
 <script>
+  import VLoad from "../page/loading";
   export default {
     name: "home",
-    components: {},
+    components: {
+      VLoad
+    },
     data() {
       return {
+        loadShow: false,
+        drawShow:false,
+        drawWidth:0,
+        drawHeight:0,
+        drawLeft:0,
+        drawTop:0,
         mediaRecorder: "",
         mediaStreamTrack:'',
         videolength: 0,
@@ -36,7 +40,7 @@
       };
     },
     mounted() {
-      // this.getVideo();
+      this.getVideo();
     },
     methods: {
       drawBg() {
@@ -77,31 +81,27 @@
       faceInit() {
         let that = this;
         let photoShow = false;
-        var video = document.getElementById('video');
-        var canvas = document.getElementById('canvas');
-        var context = canvas.getContext('2d');
+        // var video = document.getElementById('video');
+
+        // var canvas = document.getElementById('canvas');
+        // var context = canvas.getContext('2d');
+
         var tracker = new tracking.ObjectTracker('face');
         tracker.setInitialScale(4);
         tracker.setStepSize(2);
         tracker.setEdgesDensity(0.1);
         tracking.track('#video', tracker, { camera: true });
         tracker.on('track', function(event) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
           event.data.forEach(function(rect) {
             // if (!event.data.length) {
-            //   photoShow = true
+            //   that.drawShow = false;
             // } else {
-            //   photoShow = false
+            //   that.drawWidth = rect.width;
+            //   that. drawHeight = rect.height;
+            //   that.drawLeft = rect.x;
+            //   that.drawTop = rect.y;
+            //   that.drawShow = true;
             // }
-            context.strokeStyle = '#145b7d';
-            context.strokeRect(rect.x, rect.y, rect.width, rect.height);
-            context.font = '11px Helvetica';
-            context.fillStyle = "#fff";
-            if (photoShow) {
-              that.takePhoto();
-            }
-            // context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
-            // context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
           });
 
         });
@@ -154,29 +154,44 @@
     top: 0;
     left: 0;
     overflow: hidden;
-  }
-  .frostedGlass{
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    canvas{
+    .load{
+      z-index: 999;
       width: 100%;
       height: 100%;
     }
+    .contenr{
+      z-index: 9;
+      canvas{
+        display: block;
+      }
+      .draw {
+        position: absolute;
+        border: 3px solid red;
+      }
+    }
   }
-  .demo-container{
-    position: relative;
-  }
-  .draw{
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-  .btncon{
-    position: absolute;
-    left: 0;
-    bottom: 0;
-  }
+  /*.frostedGlass{*/
+    /*position: absolute;*/
+    /*top: 0;*/
+    /*left: 0;*/
+    /*width: 100%;*/
+    /*height: 100%;*/
+    /*canvas{*/
+      /*width: 100%;*/
+      /*height: 100%;*/
+    /*}*/
+  /*}*/
+  /*.demo-container{*/
+    /*position: relative;*/
+  /*}*/
+  /*.draw{*/
+    /*position: absolute;*/
+    /*top: 0;*/
+    /*left: 0;*/
+  /*}*/
+  /*.btncon{*/
+    /*position: absolute;*/
+    /*left: 0;*/
+    /*bottom: 0;*/
+  /*}*/
 </style>
