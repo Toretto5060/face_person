@@ -54,7 +54,7 @@
       }
     ],
     "win": {
-      "icon": "build/icons/icon.ico",
+      "icon": "build/icons/logo.ico",
       "target": [
         "nsis",
         "zip"
@@ -76,6 +76,9 @@
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",
     "vuex-electron": "^1.0.0"
+  },
+  "build打开F12,在src/main/index.js中添加": {
+    "createWindow ()": "mainWindow.webContents.openDevTools();"
   },
   "devDependencies": {
     "ajv": "^6.5.0",

@@ -7,13 +7,16 @@
       <div class="videocon">
         <video  ref="video" id="video" width="640" height="480" autoplay></video>
       </div>
-      <div class="draw" :style="{width: drawWidth+'px', height:drawHeight+'px',left:drawLeft+'px',top:drawTop+'px'}" v-if="drawShow">
-        <!--<canvas id="canvas"  width="640" height="480"></canvas>-->
+      <div class="draw">
+        <canvas ref="drawIcon" id="canvas"  width="640" height="480"></canvas>
       </div>
-      <div class="cancon">
-        <canvas ref="canvas" width="200" height="150"></canvas>
+
+      <div class="bgDraw" ref="fBgDraw">
+        <canvas ref="bgDraw"></canvas>
       </div>
-      <div id="content"></div>
+      <!--<div class="cancon">-->
+        <!--<canvas ref="canvas" width="200" height="150"></canvas>-->
+      <!--</div>-->
     </div>
   </div>
 </template>
@@ -27,7 +30,7 @@
     },
     data() {
       return {
-        loadShow: false,
+        loadShow: true,
         drawShow:false,
         drawWidth:0,
         drawHeight:0,
@@ -43,68 +46,67 @@
       this.getVideo();
     },
     methods: {
-      drawBg() {
-        let canvasCon =  this.$refs.canvas
-        let context = canvasCon.getContext("2d");
-        context.drawImage(this.$refs.video, 0, 0, 640, 480);
-        let imgSrc = canvasCon.toDataURL("image/png");
-      },
       // 开启摄像头
       getVideo() {
-        var video = this.$refs.video;
-        var videoObj = {
+        let video = this.$refs.video;
+        let videoObj = {
           video: true,
           // audio: true
         }
-        let self = this;
+        let that = this;
         navigator.mediaDevices
           .getUserMedia(videoObj)
           .then(function (mediaStream) {
-            self.mediaStreamTrack = mediaStream
+            that.mediaStreamTrack = mediaStream
             video.srcObject = mediaStream
             video.play()
-            self.mediaRecorder = new MediaRecorder(mediaStream, {
+            that.mediaRecorder = new MediaRecorder(mediaStream, {
               audioBitsPerSecond : 128000,  // 音频码率
               videoBitsPerSecond : 500000,  // 视频码率
               mimeType : 'video/webm;codecs=h264' // 编码格式
             })
             setTimeout(function () {
-              self.faceInit()
+              // let fBgCanvas = that.$refs.fBgDraw;
+              // let bgCanvas = that.$refs.bgDraw;
+              // let bgVideo = that.$refs.video
+              // let bgType = bgCanvas.getContext('2d');
+              // bgType.drawImage(bgVideo, 0, 0, fBgCanvas.offsetWidth, fBgCanvas.offsetHeight)
+
+              that.faceInit()
             },1000)
             // self.drawBg()
           })
           .catch(function (error) {
-            console.log(error)
+            self.loadShow = false;
+            alert('未检测到摄像头或摄像头被占用')
           });
       },
       // 人脸识别
       faceInit() {
         let that = this;
         let photoShow = false;
-        // var video = document.getElementById('video');
-
-        // var canvas = document.getElementById('canvas');
-        // var context = canvas.getContext('2d');
-
-        var tracker = new tracking.ObjectTracker('face');
+        // let video = document.getElementById('video');
+        let canvas = this.$refs.drawIcon;
+        let context = canvas.getContext('2d');
+        let tracker = new tracking.ObjectTracker('face');
         tracker.setInitialScale(4);
         tracker.setStepSize(2);
         tracker.setEdgesDensity(0.1);
         tracking.track('#video', tracker, { camera: true });
         tracker.on('track', function(event) {
-          event.data.forEach(function(rect) {
-            // if (!event.data.length) {
-            //   that.drawShow = false;
-            // } else {
-            //   that.drawWidth = rect.width;
-            //   that. drawHeight = rect.height;
-            //   that.drawLeft = rect.x;
-            //   that.drawTop = rect.y;
-            //   that.drawShow = true;
-            // }
-          });
-
+          if (!that.loadShow) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            event.data.forEach(function(rect) {
+              let img = new Image();
+              img.src = "./static/faceIcon.png";
+              context.drawImage(img,rect.x, rect.y, rect.width, rect.height);
+            });
+          }
         });
+        let showFace = setTimeout(() => {
+          that.loadShow = false;
+          clearTimeout(showFace)
+        },100)
       },
       // 抓拍人脸
       takePhoto() {
@@ -134,9 +136,9 @@
         console.log('停止采集');
         clearInterval(this.timer);
         this.timer = null
-        var a = this.$refs.save
+        let a = this.$refs.save
         // this.mediaRecorder.ondataavailable = function (e) {
-        //   var encodedUri = URL.createObjectURL(e.data)
+        //   let encodedUri = URL.createObjectURL(e.data)
         //   a.href = encodedUri
         //   a.download = `test.webm`
         //   console.log(encodedUri)
@@ -164,34 +166,27 @@
       canvas{
         display: block;
       }
-      .draw {
+      .videocon{
+        z-index: 99;
+      }
+      .draw{
         position: absolute;
-        border: 3px solid red;
+        top: 0;
+        left: 0;
+      }
+      .bgDraw {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        canvas {
+          width: 100%;
+          height: 100%;
+          z-index: 9;
+        }
+        z-index: -1;
       }
     }
   }
-  /*.frostedGlass{*/
-    /*position: absolute;*/
-    /*top: 0;*/
-    /*left: 0;*/
-    /*width: 100%;*/
-    /*height: 100%;*/
-    /*canvas{*/
-      /*width: 100%;*/
-      /*height: 100%;*/
-    /*}*/
-  /*}*/
-  /*.demo-container{*/
-    /*position: relative;*/
-  /*}*/
-  /*.draw{*/
-    /*position: absolute;*/
-    /*top: 0;*/
-    /*left: 0;*/
-  /*}*/
-  /*.btncon{*/
-    /*position: absolute;*/
-    /*left: 0;*/
-    /*bottom: 0;*/
-  /*}*/
 </style>

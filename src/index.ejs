@@ -3,14 +3,15 @@
   <head>
     <meta charset="utf-8">
     <title>facetoface</title>
+      <script src="./static/tracking-min.js"></script>
+      <script src="./static/personData/face-min.js"></script>
+
     <% if (htmlWebpackPlugin.options.nodeModules) { %>
       <!-- Add `node_modules/` to global paths so `require` works properly in development -->
       <script>
         require('module').globalPaths.push('<%= htmlWebpackPlugin.options.nodeModules.replace(/\\/g, '\\\\') %>')
       </script>
     <% } %>
-      <script src="../static/tracking-min.js"></script>
-      <script src="../static/personData/face-min.js"></script>
   </head>
   <body>
     <div id="app"></div>
